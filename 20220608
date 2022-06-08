@@ -145,3 +145,5 @@ from #tb a
 left join ##gys1 g1 on a.凭证号 = g1.ItemID
 left join ##gys2 g2 on a.凭证号 = g2.ItemID
 -- 最后记得把g1.ItemID隐藏了
+
+hello world
