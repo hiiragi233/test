@@ -32,6 +32,9 @@ outer apply (
 	select info = N.v.value('.', 'varchar(max)')
 	from a.info.nodes('/root/v') N(v)) b
 	
+update #tb2 set info = replace(info, '[["', '')
+update #tb2 set info = replace(info, '["', '')
+	
 -- 行拼接
 declare @tsql1 varchar(2000), @tsql2 varchar(2000), @tsql3 varchar(8000)
 					
@@ -48,6 +51,7 @@ select @tsql3 = 'select ItemID ''ItemID'', row_number()over(partition by ItemID 
 	+ ' pivot(max(info) for rn in(' + @tsql1 + ')) u '
 	+ ' order by ItemID desc '
 exec(@tsql3)
+
 
 --------------------
 
@@ -87,6 +91,10 @@ from (
 outer apply (
 	select info = N.v.value('.', 'varchar(max)')
 	from a.info.nodes('/root/v') N(v)) b 
+	
+update #tb3 set info = replace(info, '[', '')
+update #tb3 set info = replace(info, ']', '')
+update #tb3 set info = replace(info, '"', '')
 	
 						
 select @tsql1 = isnull(@tsql1 + ',', '') + '[' + rtrim(number) + ']',
@@ -129,8 +137,7 @@ select
 	发起申请时间 = max(CONVERT(varchar(100),a.[CreateDateTime],20)),
 	最后一个领导审批结束时间 = max(case when b.NodeID = '67439cc4-9c2b-4cca-9055-73267c4e7b93' then CONVERT(varchar(100),[DateTime],20) else null end),
 	采购部接收时间 = max(case when b.NodeID = '89f4bc54-1253-44ab-9b68-fdf19eb7c73e' then CONVERT(varchar(100),[DateTime],20) else null end),
-	采购部反馈用户时间 = '',
-	推荐供应商信息 = max(case when ElementID = 'b31c2cf3-6dcd-4ffa-88a5-778bdc1f827a' then convert(varchar(max), [value]) else null end)
+	采购部反馈用户时间 = ''
 into #tb
 from (select * from [web2].[OA2].[dbo].[WF_Values] where status = 1 or status is null) b
 right join (select * from [web2].[OA2].[dbo].[WF_Items] where [TemplateID] = '2d1d37a7-c5eb-44a6-ad0a-cfff30a3e5e2') a on a.ItemID = b.ItemID
